@@ -1,4 +1,4 @@
-import { propTypes } from "prop-types";
+//import { propTypes } from "prop-types";
 import { Helmet } from "react-helmet-async";
 
 function PageTitle({ title }) {
@@ -8,7 +8,7 @@ function PageTitle({ title }) {
     </Helmet>
   );
 }
-PageTitle.propTypes = {
-  title: propTypes.string.isRequired,
-};
+// PageTitle.propTypes = {
+//   title: propTypes.string.isRequired,
+// };
 export default PageTitle;

@@ -13,7 +13,6 @@ import { HelmetProvider } from "react-helmet-async";
 function App() {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
   const darkMode = useReactiveVar(darkModeVar);
-  console.log(isLoggedIn);
   return (
     <HelmetProvider>
       <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
