@@ -30,7 +30,6 @@ const DarkModeBtn = styled.span`
 `;
 function AuthLayout({ children }) {
   const darkMode = useReactiveVar(darkModeVar);
-  console.log(darkMode);
   return (
     <Container>
       <Wrapper>{children}</Wrapper>
