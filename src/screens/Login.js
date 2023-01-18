@@ -117,9 +117,11 @@ function Login() {
           <FormError message={errors?.password?.message} />
           <Button
             type="submit"
-            value={loading ? "Loading..." : "Log in"}
+            //value={loading ? "Loading..." : "Log in"}
             disabled={!formState.isValid || loading}
-          />
+          >
+            {loading ? "Loading..." : "Log in"}
+          </Button>
           <FormError message={errors?.result?.message} />
         </form>
         <Separator />

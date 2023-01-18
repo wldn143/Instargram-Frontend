@@ -30,7 +30,7 @@ function Home() {
   return (
     <div>
       <PageTitle title="Home" />
-      {/* <button onClick={() => logUserOut(history)}>로그아웃</button> */}
+      <button onClick={() => logUserOut(history)}>로그아웃</button>
       {data?.seeFeed?.map((photo) => (
         <Photo key={photo.id} {...photo} />
       ))}
