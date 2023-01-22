@@ -1,7 +1,7 @@
 import styled from "styled-components";
 const Button = styled.button`
   border: none;
-  border-radius: 3px;
+  border-radius: 8px;
   margin-top: 12px;
   background-color: ${(props) => props.theme.accent};
   color: white;

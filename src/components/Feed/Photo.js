@@ -13,6 +13,8 @@ import Avatar from "../auth/Avatar";
 import { gql, useMutation } from "@apollo/client";
 import Comments from "./Comments";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import Like from "./Like";
 
 const TOGGLE_LIKE_MUTATION = gql`
   mutation toggleLike($id: Int!) {
@@ -48,6 +50,7 @@ const PhotoFile = styled.img`
 const PhotoData = styled.div`
   padding: 12px 15px;
 `;
+
 const PhotoActions = styled.div`
   display: flex;
   align-items: center;
@@ -60,12 +63,15 @@ const PhotoActions = styled.div`
     font-size: 20px;
   }
 `;
+
 const PhotoAction = styled.div`
   margin-right: 10px;
 `;
+
 const Likes = styled(FatText)`
   margin-top: 15px;
   display: block;
+  cursor: pointer;
 `;
 
 function Photo({
@@ -103,51 +109,69 @@ function Photo({
       });
     }
   };
+
   const [toggleLike, { loading }] = useMutation(TOGGLE_LIKE_MUTATION, {
     variables: { id },
     update: updateToggleLike,
   });
+
+  let [likesList, setLikeList] = useState(false);
   return (
-    <PhotoContainer key={id}>
-      <PhotoHeader>
-        <Link to={`/users/${user.username}`}>
-          <Avatar lg url={user.avatar} />
-        </Link>
-        <Link to={`/users/${user.username}`}>
-          <Username>{user.username}</Username>
-        </Link>
-      </PhotoHeader>
-      <PhotoFile src={file} />
-      <PhotoData>
-        <PhotoActions>
-          <div>
-            <PhotoAction onClick={toggleLike}>
-              <FontAwesomeIcon
-                style={{ color: isLiked ? "tomato" : "inherit" }}
-                icon={isLiked ? SolidHeart : faHeart}
-              />
-            </PhotoAction>
-            <PhotoAction>
-              <FontAwesomeIcon icon={faComment} />
-            </PhotoAction>
-            <PhotoAction>
-              <FontAwesomeIcon icon={faPaperPlane} />
-            </PhotoAction>
-          </div>
-          <div>
-            <FontAwesomeIcon icon={faBookmark} />
-          </div>
-        </PhotoActions>
-        <Likes>{likes === 1 ? "1 like" : `${likes} likes`}</Likes>
-        <Comments
-          photoId={id}
-          author={user.username}
-          caption={caption}
-          commentNumber={commentNumber}
-          comments={comments}
-        />
-      </PhotoData>
-    </PhotoContainer>
+    <>
+      <PhotoContainer key={id}>
+        <PhotoHeader>
+          <Link to={`/users/${user.username}`}>
+            <Avatar lg url={user.avatar} />
+          </Link>
+          <Link to={`/users/${user.username}`}>
+            <Username>{user.username}</Username>
+          </Link>
+        </PhotoHeader>
+        <PhotoFile src={file} />
+        <PhotoData>
+          <PhotoActions>
+            <div>
+              <PhotoAction onClick={toggleLike}>
+                <FontAwesomeIcon
+                  style={{ color: isLiked ? "tomato" : "inherit" }}
+                  icon={isLiked ? SolidHeart : faHeart}
+                />
+              </PhotoAction>
+              <PhotoAction>
+                <FontAwesomeIcon icon={faComment} />
+              </PhotoAction>
+              <PhotoAction>
+                <FontAwesomeIcon icon={faPaperPlane} />
+              </PhotoAction>
+            </div>
+            <div>
+              <FontAwesomeIcon icon={faBookmark} />
+            </div>
+          </PhotoActions>
+          <Likes onClick={() => setLikeList(true)}>
+            {likes === 1 ? "1 like" : `${likes} likes`}
+          </Likes>
+          <Comments
+            photoId={id}
+            author={user.username}
+            caption={caption}
+            commentNumber={commentNumber}
+            comments={comments}
+          />
+        </PhotoData>
+      </PhotoContainer>
+      <div>
+        {likesList ? (
+          <Like
+            photoId={id}
+            username={user.username}
+            onClose={() => {
+              setLikeList(false);
+            }}
+          />
+        ) : null}
+      </div>
+    </>
   );
 }
 

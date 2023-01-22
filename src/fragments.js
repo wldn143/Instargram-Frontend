@@ -21,3 +21,14 @@ export const COMMENT_FRAGMENT = gql`
     createdAt
   }
 `;
+export const USER_FRAGMENT = gql`
+  fragment UserFragment on User {
+    id
+    username
+    firstName
+    lastName
+    avatar
+    isFollowing
+    isMe
+  }
+`;

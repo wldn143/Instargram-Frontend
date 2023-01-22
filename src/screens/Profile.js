@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../components/auth/Button";
+import { follow, unfollow } from "../components/Feed/ToggleFollow";
 import PageTitle from "../components/PageTitle";
 import { FatText } from "../components/shared";
 import { PHOTO_FRAGMENT } from "../fragments";
@@ -134,29 +135,11 @@ function Profile() {
       unfollowUser: { ok },
     } = data;
     if (!ok) return;
-    const { cache } = client;
-    const { me } = userData;
-
-    cache.modify({
-      id: `User:${username}`,
-      fields: {
-        isFollowing(prev) {
-          return false;
-        },
-        totalFollowers(prev) {
-          return prev - 1;
-        },
-      },
-    });
-
-    cache.modify({
-      id: `User:${me.username}`,
-      fields: {
-        totalFollowing(prev) {
-          return prev - 1;
-        },
-      },
-    });
+    else {
+      const { cache } = client;
+      const { me } = userData;
+      unfollow(cache, me, username);
+    }
   };
 
   const followUserCompleted = (data) => {
@@ -164,29 +147,11 @@ function Profile() {
       followUser: { ok },
     } = data;
     if (!ok) return;
-    const { cache } = client;
-    const { me } = userData;
-
-    cache.modify({
-      id: `User:${username}`,
-      fields: {
-        isFollowing(prev) {
-          return true;
-        },
-        totalFollowers(prev) {
-          return prev + 1;
-        },
-      },
-    });
-
-    cache.modify({
-      id: `User:${me.username}`,
-      fields: {
-        totalFollowing(prev) {
-          return prev + 1;
-        },
-      },
-    });
+    else {
+      const { cache } = client;
+      const { me } = userData;
+      follow(cache, me, username);
+    }
   };
 
   const { data, loading } = useQuery(SEE_PROFILE_QUERY, {
