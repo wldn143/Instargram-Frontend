@@ -66,7 +66,7 @@ const MeBtn = styled.div`
   height: 32px;
 `;
 
-function LikeList({ avatar, username, firstName }) {
+function UserList({ avatar, username, firstName }) {
   const { data, loading } = useQuery(SEE_PROFILE_QUERY, {
     variables: {
       username,
@@ -143,4 +143,4 @@ function LikeList({ avatar, username, firstName }) {
     </UserContainer>
   );
 }
-export default LikeList;
+export default UserList;

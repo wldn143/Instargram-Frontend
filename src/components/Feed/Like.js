@@ -1,10 +1,10 @@
 import { gql, useQuery } from "@apollo/client";
 import styled from "styled-components";
 import { USER_FRAGMENT } from "../../fragments";
-import LikeList from "./LikeList";
 import ModalContainer from "../../shared/Modal";
 import { useRef } from "react";
 import useOutSideClick from "../../shared/useOutSideClick";
+import UserList from "./UserList";
 
 const SEE_PHOTO_LIKES_QUERY = gql`
   query seePhotoLikes($id: Int!) {
@@ -72,7 +72,7 @@ function Like({ photoId, username, onClose }) {
         </LikesHeader>
         <div>
           {data?.seePhotoLikes?.map((user) => (
-            <LikeList
+            <UserList
               key={user.id}
               avatar={user.avatar}
               username={user.username}

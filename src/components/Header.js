@@ -1,14 +1,16 @@
 import { useReactiveVar } from "@apollo/client";
 import { faInstagram } from "@fortawesome/free-brands-svg-icons";
 import { faCompass, faUser } from "@fortawesome/free-regular-svg-icons";
-import { faHome } from "@fortawesome/free-solid-svg-icons";
+import { faHome, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { isLoggedInVar } from "../apollo";
 import useUser from "../hooks/useUser";
 import routes from "../routes";
 import Avatar from "./auth/Avatar";
+import Search from "./search/Search";
 
 const SHeader = styled.header`
   width: 100%;
@@ -48,43 +50,60 @@ const IconsContainer = styled.div`
 `;
 function Header() {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
+  let [searchMode, setSearchMode] = useState(false);
   const { data } = useUser();
   const url = data?.me?.avatar;
   return (
-    <SHeader>
-      <Wrapper>
-        <Column>
-          <Link to={routes.home}>
-            <FontAwesomeIcon icon={faInstagram} size="2x" />
-          </Link>
-        </Column>
-        <Column>
-          {isLoggedIn ? (
-            <IconsContainer>
-              <Link to={routes.home}>
-                <FontAwesomeIcon icon={faHome} size="lg" />
-              </Link>
-              <Icon>
-                <FontAwesomeIcon icon={faCompass} size="lg" />
-              </Icon>
-              <Icon>
-                {url ? (
-                  <Link to={`/users/${data?.me?.username}`}>
-                    <Avatar url={url}></Avatar>
-                  </Link>
-                ) : (
-                  <FontAwesomeIcon icon={faUser} size="lg" />
-                )}
-              </Icon>
-            </IconsContainer>
-          ) : (
-            <Link href={routes.home}>
-              <Button>Login</Button>
+    <>
+      <SHeader>
+        <Wrapper>
+          <Column>
+            <Link to={routes.home}>
+              <FontAwesomeIcon icon={faInstagram} size="2x" />
             </Link>
-          )}
-        </Column>
-      </Wrapper>
-    </SHeader>
+          </Column>
+          <Column>
+            {isLoggedIn ? (
+              <IconsContainer>
+                <FontAwesomeIcon
+                  icon={faSearch}
+                  size="lg"
+                  onClick={() => setSearchMode(true)}
+                />
+                <Icon>
+                  <Link to={routes.home}>
+                    <FontAwesomeIcon icon={faHome} size="lg" />
+                  </Link>
+                </Icon>
+                <Icon>
+                  <FontAwesomeIcon icon={faCompass} size="lg" />
+                </Icon>
+                <Icon>
+                  {url ? (
+                    <Link to={`/users/${data?.me?.username}`}>
+                      <Avatar url={url}></Avatar>
+                    </Link>
+                  ) : (
+                    <FontAwesomeIcon icon={faUser} size="lg" />
+                  )}
+                </Icon>
+              </IconsContainer>
+            ) : (
+              <Link href={routes.home}>
+                <Button>Login</Button>
+              </Link>
+            )}
+          </Column>
+        </Wrapper>
+      </SHeader>
+      {searchMode ? (
+        <Search
+          onClose={() => {
+            setSearchMode(false);
+          }}
+        />
+      ) : null}
+    </>
   );
 }
 export default Header;
