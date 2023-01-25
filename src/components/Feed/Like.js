@@ -2,7 +2,9 @@ import { gql, useQuery } from "@apollo/client";
 import styled from "styled-components";
 import { USER_FRAGMENT } from "../../fragments";
 import LikeList from "./LikeList";
-import ModalContainer from "./Modal";
+import ModalContainer from "../../shared/Modal";
+import { useRef } from "react";
+import useOutSideClick from "../../shared/useOutSideClick";
 
 const SEE_PHOTO_LIKES_QUERY = gql`
   query seePhotoLikes($id: Int!) {
@@ -11,18 +13,6 @@ const SEE_PHOTO_LIKES_QUERY = gql`
     }
   }
   ${USER_FRAGMENT}
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.2);
-  z-index: 9999;
 `;
 
 const LikesContatiner = styled.div`
@@ -64,32 +54,33 @@ const CloseBtn = styled.button`
 `;
 
 function Like({ photoId, username, onClose }) {
+  const modalRef = useRef(null);
+  useOutSideClick(modalRef, () => onClose());
+
   const { data, loading } = useQuery(SEE_PHOTO_LIKES_QUERY, {
     variables: { id: photoId },
   });
 
   return (
     <ModalContainer>
-      <Overlay>
-        <LikesContatiner>
-          <LikesHeader>
-            <LikesHeaderText>Likes</LikesHeaderText>
-            <CloseBtnContainer>
-              <CloseBtn onClick={() => onClose()}>𝙓</CloseBtn>
-            </CloseBtnContainer>
-          </LikesHeader>
-          <div>
-            {data?.seePhotoLikes?.map((user) => (
-              <LikeList
-                key={user.id}
-                avatar={user.avatar}
-                username={user.username}
-                firstName={user.firstName}
-              />
-            ))}
-          </div>
-        </LikesContatiner>
-      </Overlay>
+      <LikesContatiner ref={modalRef}>
+        <LikesHeader>
+          <LikesHeaderText>Likes</LikesHeaderText>
+          <CloseBtnContainer>
+            <CloseBtn onClick={() => onClose()}>𝙓</CloseBtn>
+          </CloseBtnContainer>
+        </LikesHeader>
+        <div>
+          {data?.seePhotoLikes?.map((user) => (
+            <LikeList
+              key={user.id}
+              avatar={user.avatar}
+              username={user.username}
+              firstName={user.firstName}
+            />
+          ))}
+        </div>
+      </LikesContatiner>
     </ModalContainer>
   );
 }

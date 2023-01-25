@@ -160,17 +160,15 @@ function Photo({
           />
         </PhotoData>
       </PhotoContainer>
-      <div>
-        {likesList ? (
-          <Like
-            photoId={id}
-            username={user.username}
-            onClose={() => {
-              setLikeList(false);
-            }}
-          />
-        ) : null}
-      </div>
+      {likesList ? (
+        <Like
+          photoId={id}
+          username={user.username}
+          onClose={() => {
+            setLikeList(false);
+          }}
+        />
+      ) : null}
     </>
   );
 }

@@ -139,7 +139,7 @@ function LikeList({ avatar, username, firstName }) {
         </Link>
         <UserText2>{firstName}</UserText2>
       </UserTextContainer>
-      {data?.seeProfile ? getButton(data.seeProfile) : null}
+      {data?.seeProfile ? getButton(data.seeProfile) : <MeBtn />}
     </UserContainer>
   );
 }
