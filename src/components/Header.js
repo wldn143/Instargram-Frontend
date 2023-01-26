@@ -1,6 +1,10 @@
 import { useReactiveVar } from "@apollo/client";
 import { faInstagram } from "@fortawesome/free-brands-svg-icons";
-import { faCompass, faUser } from "@fortawesome/free-regular-svg-icons";
+import {
+  faCompass,
+  faPlusSquare,
+  faUser,
+} from "@fortawesome/free-regular-svg-icons";
 import { faHome, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
@@ -11,6 +15,7 @@ import useUser from "../hooks/useUser";
 import routes from "../routes";
 import Avatar from "./auth/Avatar";
 import Search from "./search/Search";
+import Upload from "./Upload/Upload";
 
 const SHeader = styled.header`
   width: 100%;
@@ -33,7 +38,15 @@ const Wrapper = styled.div`
 const Column = styled.div``;
 
 const Icon = styled.span`
+  cursor: pointer;
   margin-left: 15px;
+  input[type="file"] {
+    position: absolute;
+    display: none;
+  }
+  label {
+    cursor: pointer;
+  }
 `;
 
 const Button = styled.span`
@@ -51,8 +64,10 @@ const IconsContainer = styled.div`
 function Header() {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
   let [searchMode, setSearchMode] = useState(false);
+  let [uploadMode, setUploadMode] = useState(false);
   const { data } = useUser();
   const url = data?.me?.avatar;
+  const me = data?.me;
   return (
     <>
       <SHeader>
@@ -65,11 +80,20 @@ function Header() {
           <Column>
             {isLoggedIn ? (
               <IconsContainer>
-                <FontAwesomeIcon
-                  icon={faSearch}
-                  size="lg"
-                  onClick={() => setSearchMode(true)}
-                />
+                <Icon>
+                  <FontAwesomeIcon
+                    icon={faPlusSquare}
+                    size="lg"
+                    onClick={() => setUploadMode(true)}
+                  />
+                </Icon>
+                <Icon>
+                  <FontAwesomeIcon
+                    icon={faSearch}
+                    size="lg"
+                    onClick={() => setSearchMode(true)}
+                  />
+                </Icon>
                 <Icon>
                   <Link to={routes.home}>
                     <FontAwesomeIcon icon={faHome} size="lg" />
@@ -101,6 +125,15 @@ function Header() {
           onClose={() => {
             setSearchMode(false);
           }}
+        />
+      ) : null}
+
+      {uploadMode ? (
+        <Upload
+          onClose={() => {
+            setUploadMode(false);
+          }}
+          user={me}
         />
       ) : null}
     </>
