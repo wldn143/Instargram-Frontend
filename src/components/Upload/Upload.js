@@ -70,10 +70,12 @@ function Upload({ onClose, user }) {
   useOutSideClick(modalRef, () => onClose());
 
   const [imgFile, setImgFile] = useState(null);
+  const [imgUrl, setImgUrl] = useState(null);
   const imgRef = useRef();
 
   const onChange = () => {
     const file = imgRef.current.files[0];
+    setImgUrl(file);
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = () => {
@@ -87,7 +89,7 @@ function Upload({ onClose, user }) {
           <HeaderText>새 게시물 만들기</HeaderText>
         </UploadHeader>
         {imgFile ? (
-          <UploadForm img={imgFile} user={user} />
+          <UploadForm img={imgFile} url={imgUrl} user={user} />
         ) : (
           <>
             <UploadIconContainer>
