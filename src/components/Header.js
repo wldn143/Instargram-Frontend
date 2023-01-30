@@ -2,6 +2,7 @@ import { useReactiveVar } from "@apollo/client";
 import { faInstagram } from "@fortawesome/free-brands-svg-icons";
 import {
   faCompass,
+  faPaperPlane,
   faPlusSquare,
   faUser,
 } from "@fortawesome/free-regular-svg-icons";
@@ -80,6 +81,11 @@ function Header() {
           <Column>
             {isLoggedIn ? (
               <IconsContainer>
+                <Icon>
+                  <Link to={`/direct/${data?.me?.username}`}>
+                    <FontAwesomeIcon icon={faPaperPlane} size="lg" />
+                  </Link>
+                </Icon>
                 <Icon>
                   <FontAwesomeIcon
                     icon={faPlusSquare}

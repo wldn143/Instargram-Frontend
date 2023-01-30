@@ -32,3 +32,18 @@ export const USER_FRAGMENT = gql`
     isMe
   }
 `;
+
+export const ROOM_FRAGMENT = gql`
+  fragment RoomFragment on Room {
+    id
+    unreadTotal
+    messages {
+      id
+      payload
+    }
+    users {
+      username
+      avatar
+    }
+  }
+`;

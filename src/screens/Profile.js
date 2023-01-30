@@ -51,8 +51,8 @@ const Header = styled.div`
 `;
 const Avatar = styled.img`
   margin-left: 50px;
-  height: 160px;
-  width: 160px;
+  height: 150px;
+  width: 150px;
   border-radius: 50%;
   margin-right: 150px;
   background-color: #2c2c2c;
