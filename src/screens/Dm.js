@@ -128,7 +128,7 @@ function Dm() {
       <RoomContainer>
         {clickedRoom ? (
           <Room
-            id={clickedRoom.id}
+            roomId={clickedRoom.id}
             opponent={clickedRoom.opponent}
             messages={data?.seeRoom?.messages}
           />

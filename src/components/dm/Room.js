@@ -1,3 +1,4 @@
+import { gql, useMutation } from "@apollo/client";
 import { faHeart, faImage, faSmile } from "@fortawesome/free-regular-svg-icons";
 import {
   faInfoCircle,
@@ -6,8 +7,19 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef } from "react";
+import { useForm } from "react-hook-form";
 import styled from "styled-components";
+import useUser from "../../hooks/useUser";
 import Avatar from "../auth/Avatar";
+
+const SEND_MESSAGE_MUTATION = gql`
+  mutation sendMessage($payload: String!, $roomId: Int, $userId: Int) {
+    sendMessage(payload: $payload, roomId: $roomId, userId: $userId) {
+      ok
+      id
+    }
+  }
+`;
 
 const RoomHeader = styled.div`
   height: 60px;
@@ -56,7 +68,7 @@ const InputBarContainer = styled.div`
   border-radius: 20px;
 `;
 
-const InputBar = styled.div`
+const InputBar = styled.form`
   display: flex;
   align-items: center;
   width: 543px;
@@ -102,7 +114,71 @@ const PayloadContainer = styled.div`
   margin-bottom: 10px;
 `;
 
-function Room({ id, opponent, messages }) {
+function Room({ roomId, opponent, messages }) {
+  const { register, handleSubmit, getValues, setValue } = useForm();
+  const { data: userData } = useUser();
+
+  const updateSendMessage = (cache, result) => {
+    const { payload } = getValues();
+    setValue("payload", "");
+    const {
+      data: {
+        sendMessage: { ok, id },
+      },
+    } = result;
+
+    if (ok && userData?.me) {
+      const newPayload = {
+        __typename: "Message",
+        id,
+        payload,
+        user: {
+          ...userData.me,
+        },
+        read: false,
+      };
+
+      const newCachePayload = cache.writeFragment({
+        fragment: gql`
+          fragment BsName on Message {
+            id
+            payload
+            user {
+              username
+              avatar
+            }
+          }
+        `,
+        data: newPayload,
+      });
+
+      cache.modify({
+        id: `Room:${roomId}`,
+        fields: {
+          messages(prev) {
+            return [...prev, newCachePayload];
+          },
+        },
+      });
+    }
+  };
+
+  const [sendMessage, { data, loading }] = useMutation(SEND_MESSAGE_MUTATION, {
+    update: updateSendMessage,
+  });
+
+  const onValid = async (payload) => {
+    await sendMessage({ variables: { payload, roomId } });
+  };
+
+  const pressEnter = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      const data = e.target.value;
+      return handleSubmit(onValid(data));
+    }
+  };
+
   const scrollRef = useRef();
   useEffect(() => {
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -112,12 +188,12 @@ function Room({ id, opponent, messages }) {
     let sender = message.user.username;
 
     return sender === opponent.username ? (
-      <OpponentMessage id="you">
+      <OpponentMessage>
         <Avatar url={message.user.avatar} size={24} />
         <PayloadContainer>{message.payload}</PayloadContainer>
       </OpponentMessage>
     ) : (
-      <MyMessage id="me">
+      <MyMessage>
         <PayloadContainer>{message.payload}</PayloadContainer>
       </MyMessage>
     );
@@ -152,11 +228,15 @@ function Room({ id, opponent, messages }) {
       </RoomMain>
       <RoomFooter>
         <InputBarContainer>
-          <InputBar>
+          <InputBar onKeyPress={pressEnter}>
             <Icon>
               <FontAwesomeIcon icon={faSmile} size="xl" />
             </Icon>
-            <TextBar placeholder="Enter message..."></TextBar>
+            <TextBar
+              ref={register({ required: true })}
+              name="payload"
+              placeholder="Enter message..."
+            />
             <Icon>
               <FontAwesomeIcon icon={faImage} size="xl" />
             </Icon>
