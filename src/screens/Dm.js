@@ -1,23 +1,31 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery } from "@apollo/client";
 import {
   faPaperPlane,
   faPenToSquare,
 } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../components/auth/Button";
 import Room from "../components/dm/Room";
 import Rooms from "../components/dm/Rooms";
-import { ROOM_FRAGMENT } from "../fragments";
-const SEE_ROOMS_QUERY = gql`
-  query seeRooms {
-    seeRooms {
-      ...RoomFragment
+
+const SEE_ROOM_QUERY = gql`
+  query seeRoom($id: Int!) {
+    seeRoom(id: $id) {
+      id
+      messages {
+        id
+        payload
+        user {
+          username
+          avatar
+        }
+        read
+      }
     }
   }
-  ${ROOM_FRAGMENT}
 `;
 
 const DmContainer = styled.div`
@@ -92,13 +100,18 @@ const MButton = styled(Button)`
 
 function Dm() {
   const { username } = useParams();
-  const { data } = useQuery(SEE_ROOMS_QUERY);
 
-  const [clickedRoom, setClickedRoom] = useState(null);
+  const [clickedRoom, setClickedRoom] = useState(0);
 
   const roomClick = (id, opponent) => {
     setClickedRoom({ id, opponent });
   };
+
+  const [startQueryFn, { data }] = useLazyQuery(SEE_ROOM_QUERY);
+
+  useEffect(() => {
+    clickedRoom && startQueryFn({ variables: { id: clickedRoom.id } });
+  }, [clickedRoom]);
 
   return (
     <DmContainer>
@@ -109,14 +122,16 @@ function Dm() {
             <FontAwesomeIcon icon={faPenToSquare} size="xl" />
           </CreateMessageBtn>
         </RoomsHeader>
-        {data?.seeRooms?.map((room) => (
-          <Rooms key={room.id} {...room} roomClick={roomClick} />
-        ))}
+        <Rooms roomClick={roomClick} />
       </RoomsContainer>
 
       <RoomContainer>
         {clickedRoom ? (
-          <Room id={clickedRoom.id} opponent={clickedRoom.opponent} />
+          <Room
+            id={clickedRoom.id}
+            opponent={clickedRoom.opponent}
+            messages={data?.seeRoom?.messages}
+          />
         ) : (
           <InitialConatiner>
             <Column>
