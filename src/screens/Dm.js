@@ -122,7 +122,7 @@ function Dm() {
             <FontAwesomeIcon icon={faPenToSquare} size="xl" />
           </CreateMessageBtn>
         </RoomsHeader>
-        <Rooms roomClick={roomClick} />
+        <Rooms roomClick={roomClick} myname={username} />
       </RoomsContainer>
 
       <RoomContainer>

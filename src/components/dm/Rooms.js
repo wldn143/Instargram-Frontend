@@ -1,4 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
+import { Link, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 import { ROOM_FRAGMENT } from "../../fragments";
 import Avatar from "../auth/Avatar";
@@ -23,7 +24,7 @@ const RoomsContainer = styled.div`
 `;
 
 const RoomsInfo = styled.div`
-  width: 241px;
+  width: 233px;
   margin-left: 10px;
 `;
 
@@ -35,28 +36,49 @@ const LatestPayload = styled.span`
   color: ${(props) => props.theme.cloudyColor};
 `;
 
-function Rooms({ roomClick }) {
-  const { data } = useQuery(SEE_ROOMS_QUERY);
+const UnreadIcon = styled.div`
+  background-color: ${(props) => props.theme.accent};
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+`;
 
-  const RoomList = ({ id, users, messages }) => {
-    let lastestPayload = messages[messages.length - 1].payload;
+function Rooms({ roomClick, myname }) {
+  const { data } = useQuery(SEE_ROOMS_QUERY);
+  const RoomList = ({ id, users, unreadTotal, messages }) => {
+    let match = useRouteMatch();
+    let unread = false;
+    let latestMessage = messages[messages.length - 1];
+    let latestSender = latestMessage?.user?.username;
     let opponent = null;
+
     function onClick() {
       roomClick(id, opponent);
     }
+
     users.map((user) => {
-      if (user.username !== "dy") opponent = user;
+      if (user.username !== myname) opponent = user;
     });
 
-    return (
-      <RoomsContainer onClick={onClick}>
-        <Avatar url={opponent.avatar} size={50} />
-        <RoomsInfo>
-          <UserName>{opponent.username}</UserName>
-          <LatestPayload>{lastestPayload}</LatestPayload>
-        </RoomsInfo>
-      </RoomsContainer>
-    );
+    if (opponent) {
+      if (opponent.username == latestSender && unreadTotal) {
+        unread = true;
+      }
+    }
+
+    if (opponent)
+      return (
+        <Link to={`${match.url}/${id}`}>
+          <RoomsContainer onClick={onClick}>
+            <Avatar url={opponent.avatar} size={50} />
+            <RoomsInfo>
+              <UserName>{opponent.username}</UserName>
+              <LatestPayload>{latestMessage?.payload}</LatestPayload>
+            </RoomsInfo>
+            {unread ? <UnreadIcon /> : null}
+          </RoomsContainer>
+        </Link>
+      );
   };
 
   return (

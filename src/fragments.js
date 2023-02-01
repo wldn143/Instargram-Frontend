@@ -40,6 +40,10 @@ export const ROOM_FRAGMENT = gql`
     messages {
       id
       payload
+      user {
+        username
+      }
+      read
     }
     users {
       username

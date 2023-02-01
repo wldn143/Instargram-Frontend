@@ -98,6 +98,16 @@ const MessagesContainer = styled.div`
   overflow-x: hidden;
 `;
 
+const MessageContainer = styled.div`
+  margin-bottom: 10px;
+`;
+
+const AvatarContainer = styled.div`
+  display: flex;
+  align-items: flex-end;
+  margin-right: 8px;
+`;
+
 const OpponentMessage = styled.div`
   display: flex;
 `;
@@ -109,9 +119,8 @@ const MyMessage = styled.div`
 
 const PayloadContainer = styled.div`
   border: 1px solid ${(props) => props.theme.borderColor};
-  border-radius: 16px;
+  border-radius: 25px;
   padding: 16px;
-  margin-bottom: 10px;
 `;
 
 function Room({ roomId, opponent, messages }) {
@@ -189,7 +198,9 @@ function Room({ roomId, opponent, messages }) {
 
     return sender === opponent.username ? (
       <OpponentMessage>
-        <Avatar url={message.user.avatar} size={24} />
+        <AvatarContainer>
+          <Avatar url={message.user.avatar} size={24} />
+        </AvatarContainer>
         <PayloadContainer>{message.payload}</PayloadContainer>
       </OpponentMessage>
     ) : (
@@ -222,7 +233,9 @@ function Room({ roomId, opponent, messages }) {
         <MessagesContainer ref={scrollRef}>
           {messages &&
             messages.map((message) => (
-              <Message key={message.id} {...message} />
+              <MessageContainer key={message.id}>
+                <Message {...message} />
+              </MessageContainer>
             ))}
         </MessagesContainer>
       </RoomMain>
