@@ -6,11 +6,20 @@ import {
   faVideoCamera,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import useUser from "../../hooks/useUser";
 import Avatar from "../auth/Avatar";
+
+const READ_MESSAGE_MUTATION = gql`
+  mutation readMessage($id: Int!) {
+    readMessage(id: $id) {
+      ok
+      id
+    }
+  }
+`;
 
 const SEND_MESSAGE_MUTATION = gql`
   mutation sendMessage($payload: String!, $roomId: Int, $userId: Int) {
@@ -123,9 +132,66 @@ const PayloadContainer = styled.div`
   padding: 16px;
 `;
 
+const Unread = styled.div`
+  height: 5px;
+  width: 5px;
+  background-color: ${(props) => props.theme.accent};
+  border-radius: 50%;
+`;
+
 function Room({ roomId, opponent, messages }) {
   const { register, handleSubmit, getValues, setValue } = useForm();
   const { data: userData } = useUser();
+  const [messageArray, setMessageArray] = useState(null);
+
+  const updateReadMessage = (cache, result) => {
+    const {
+      data: {
+        readMessage: { ok, id },
+      },
+    } = result;
+
+    if (ok) {
+      cache.modify({
+        id: `Message:${id}`,
+        fields: {
+          read() {
+            return true;
+          },
+        },
+      });
+      cache.modify({
+        id: `Room:${roomId}`,
+        fields: {
+          unreadTotal() {
+            return 0;
+          },
+        },
+      });
+    }
+  };
+
+  const [readMessage] = useMutation(READ_MESSAGE_MUTATION, {
+    update: updateReadMessage,
+  });
+
+  useEffect(() => {
+    setMessageArray(messages);
+  });
+
+  useEffect(() => {
+    if (messageArray) {
+      for (let i = 0; i < messageArray.length; i++) {
+        if (
+          messageArray[i].user.username === opponent.username &&
+          !messageArray[i].read
+        ) {
+          let id = messageArray[i].id;
+          readMessage({ variables: { id } });
+        }
+      }
+    }
+  }, [messageArray]);
 
   const updateSendMessage = (cache, result) => {
     const { payload } = getValues();
@@ -172,7 +238,7 @@ function Room({ roomId, opponent, messages }) {
     }
   };
 
-  const [sendMessage, { data, loading }] = useMutation(SEND_MESSAGE_MUTATION, {
+  const [sendMessage] = useMutation(SEND_MESSAGE_MUTATION, {
     update: updateSendMessage,
   });
 
@@ -195,13 +261,13 @@ function Room({ roomId, opponent, messages }) {
 
   const Message = (message) => {
     let sender = message.user.username;
-
     return sender === opponent.username ? (
       <OpponentMessage>
         <AvatarContainer>
           <Avatar url={message.user.avatar} size={24} />
         </AvatarContainer>
         <PayloadContainer>{message.payload}</PayloadContainer>
+        {message.read ? null : <Unread />}
       </OpponentMessage>
     ) : (
       <MyMessage>

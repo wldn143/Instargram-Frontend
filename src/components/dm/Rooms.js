@@ -45,6 +45,7 @@ const UnreadIcon = styled.div`
 
 function Rooms({ roomClick, myname }) {
   const { data } = useQuery(SEE_ROOMS_QUERY);
+
   const RoomList = ({ id, users, unreadTotal, messages }) => {
     let match = useRouteMatch();
     let unread = false;
@@ -61,7 +62,7 @@ function Rooms({ roomClick, myname }) {
     });
 
     if (opponent) {
-      if (opponent.username == latestSender && unreadTotal) {
+      if (opponent.username === latestSender && unreadTotal) {
         unread = true;
       }
     }
