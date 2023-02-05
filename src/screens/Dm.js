@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../components/auth/Button";
+import NewMessage from "../components/dm/NewMessage";
 import Room from "../components/dm/Room";
 import Rooms from "../components/dm/Rooms";
 
@@ -62,6 +63,7 @@ const UserName = styled.div`
 const CreateMessageBtn = styled.div`
   width: 30px;
   padding-left: 10px;
+  cursor: pointer;
 `;
 
 const RoomContainer = styled.div`
@@ -102,6 +104,8 @@ function Dm() {
   const { username } = useParams();
 
   const [clickedRoom, setClickedRoom] = useState(0);
+  const [roomList, setRoomList] = useState(null);
+  const [newMessage, setNewMessage] = useState(false);
 
   const roomClick = (id, opponent) => {
     setClickedRoom({ id, opponent });
@@ -113,16 +117,28 @@ function Dm() {
     clickedRoom && startQueryFn({ variables: { id: clickedRoom.id } });
   }, [clickedRoom]);
 
+  useEffect(() => {
+    //console.log(roomList);
+  }, [roomList]);
+
   return (
     <DmContainer>
       <RoomsContainer>
         <RoomsHeader>
           <UserName>{username}</UserName>
           <CreateMessageBtn>
-            <FontAwesomeIcon icon={faPenToSquare} size="xl" />
+            <FontAwesomeIcon
+              icon={faPenToSquare}
+              size="xl"
+              onClick={() => setNewMessage(true)}
+            />
           </CreateMessageBtn>
         </RoomsHeader>
-        <Rooms roomClick={roomClick} myname={username} />
+        <Rooms
+          roomClick={roomClick}
+          myname={username}
+          setRoomList={setRoomList}
+        />
       </RoomsContainer>
 
       <RoomContainer>
@@ -146,11 +162,14 @@ function Dm() {
               </InitialText2>
             </Column>
             <Column>
-              <MButton>Send Message</MButton>
+              <MButton onClick={() => setNewMessage(true)}>
+                Send Message
+              </MButton>
             </Column>
           </InitialConatiner>
         )}
       </RoomContainer>
+      {newMessage ? <NewMessage onClose={() => setNewMessage(false)} /> : null}
     </DmContainer>
   );
 }

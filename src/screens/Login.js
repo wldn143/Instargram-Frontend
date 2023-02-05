@@ -115,11 +115,7 @@ function Login() {
             hasError={Boolean(errors?.password?.message)}
           />
           <FormError message={errors?.password?.message} />
-          <Button
-            type="submit"
-            //value={loading ? "Loading..." : "Log in"}
-            disabled={!formState.isValid || loading}
-          >
+          <Button type="submit" disabled={!formState.isValid || loading}>
             {loading ? "Loading..." : "Log in"}
           </Button>
           <FormError message={errors?.result?.message} />

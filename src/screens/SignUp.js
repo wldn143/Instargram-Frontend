@@ -116,11 +116,9 @@ function SignUp() {
             type="password"
             placeholder="Password"
           />
-          <Button
-            type="submit"
-            value={loading ? "Loading..." : "Sign up"}
-            disabled={!formState.isValid || loading}
-          />
+          <Button type="submit" disabled={!formState.isValid || loading}>
+            {loading ? "Loading..." : "Sign up"}
+          </Button>
         </form>
       </FormBox>
       <BottomBox cta="Have an account?" linkText="Log in" link={routes.home} />

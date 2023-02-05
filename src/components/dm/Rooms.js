@@ -1,4 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
+import { useEffect } from "react";
 import { Link, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 import { ROOM_FRAGMENT } from "../../fragments";
@@ -43,8 +44,13 @@ const UnreadIcon = styled.div`
   border-radius: 50%;
 `;
 
-function Rooms({ roomClick, myname }) {
+function Rooms({ roomClick, myname, setRoomList }) {
   const { data } = useQuery(SEE_ROOMS_QUERY);
+  useEffect(() => {
+    if (data) {
+      setRoomList(data.seeRooms);
+    }
+  });
 
   const RoomList = ({ id, users, unreadTotal, messages }) => {
     let match = useRouteMatch();
