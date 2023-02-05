@@ -1,37 +1,9 @@
-import { gql, useApolloClient, useMutation, useQuery } from "@apollo/client";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import useUser from "../../hooks/useUser";
 import Avatar from "../auth/Avatar";
-import Button from "../auth/Button";
-import { follow, unfollow } from "./ToggleFollow";
-
-const SEE_PROFILE_QUERY = gql`
-  query seeProfile($username: String!) {
-    seeProfile(username: $username) {
-      id
-      username
-      isMe
-      isFollowing
-    }
-  }
-`;
-
-const FOLLOW_USER_MUTATION = gql`
-  mutation followUser($username: String!) {
-    followUser(username: $username) {
-      ok
-    }
-  }
-`;
-
-const UNFOLLOW_USER_MUTATION = gql`
-  mutation unfollowUser($username: String!) {
-    unfollowUser(username: $username) {
-      ok
-    }
-  }
-`;
+import CheckBoxOption from "../userList/CheckBoxOption";
+import FollowOption from "../userList/FollowOption";
 
 const UserContainer = styled.div`
   display: flex;
@@ -41,7 +13,7 @@ const UserContainer = styled.div`
 `;
 
 const UserTextContainer = styled.div`
-  width: 213px;
+  width: ${(props) => (props.option === "checkBox" ? 250 : 213)}px;
   margin: 0px 10px 0px 10px;
 `;
 
@@ -55,91 +27,29 @@ const UserText2 = styled.div`
   color: #a8a8a8;
 `;
 
-const FollowBtn = styled(Button)`
-  margin-top: 0px;
-  width: 77px;
-  height: 32px;
-`;
+function UserList({ avatar, username, firstName, option }) {
+  const [followOption, setFollowOption] = useState(false);
+  const [checkBoxOption, setcheckBoxOption] = useState(false);
 
-const MeBtn = styled.div`
-  width: 77px;
-  height: 32px;
-`;
-
-function UserList({ avatar, username, firstName }) {
-  const { data, loading } = useQuery(SEE_PROFILE_QUERY, {
-    variables: {
-      username,
-    },
-  });
-  const client = useApolloClient();
-  const { data: userData } = useUser();
-
-  const unfollowUserCompleted = (data) => {
-    const {
-      unfollowUser: { ok },
-    } = data;
-    if (!ok) return;
-    else {
-      const { cache } = client;
-      const { me } = userData;
-      unfollow(cache, me, username);
-      console.log(client);
-    }
-  };
-
-  const followUserCompleted = (data) => {
-    const {
-      followUser: { ok },
-    } = data;
-    if (!ok) return;
-    else {
-      const { cache } = client;
-      const { me } = userData;
-      follow(cache, me, username);
-      console.log(client);
-    }
-  };
-
-  const [unfollowUser] = useMutation(UNFOLLOW_USER_MUTATION, {
-    variables: {
-      username,
-    },
-    onCompleted: unfollowUserCompleted,
-  });
-
-  const [followUser] = useMutation(FOLLOW_USER_MUTATION, {
-    variables: {
-      username,
-    },
-    onCompleted: followUserCompleted,
-  });
-
-  const getButton = (seeProfile) => {
-    const { isMe, isFollowing } = seeProfile;
-    if (isMe) {
-      return <MeBtn />;
-    }
-    if (isFollowing) {
-      return <FollowBtn onClick={unfollowUser}>Unfollow</FollowBtn>;
-    } else {
-      return <FollowBtn onClick={followUser}>Follow</FollowBtn>;
-    }
-  };
+  useEffect(() => {
+    if (option === "follow") setFollowOption(true);
+    if (option === "checkBox") setcheckBoxOption(true);
+  }, [option]);
 
   return (
     <UserContainer>
       <Link to={`/users/${username}`}>
-        <Avatar lg url={avatar} />
+        <Avatar url={avatar} size={44} />
       </Link>
 
-      <UserTextContainer>
+      <UserTextContainer option={option}>
         <Link to={`/users/${username}`}>
           <UserText1>{username}</UserText1>
         </Link>
         <UserText2>{firstName}</UserText2>
       </UserTextContainer>
-      {data?.seeProfile ? getButton(data.seeProfile) : <MeBtn />}
+      {followOption ? <FollowOption username={username} /> : null}
+      {checkBoxOption ? <CheckBoxOption username={username} /> : null}
     </UserContainer>
   );
 }

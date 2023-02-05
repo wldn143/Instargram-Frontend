@@ -1,20 +1,10 @@
-import { gql, useApolloClient, useLazyQuery } from "@apollo/client";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import styled from "styled-components";
-import { USER_FRAGMENT } from "../../fragments";
 import ModalContainer from "../../shared/Modal";
 import useOutSideClick from "../../shared/useOutSideClick";
-import UserList from "../Feed/UserList";
 import { FatText } from "../shared";
 import Spinner from "../../shared/spinner.gif";
-const SEARCH_USERS = gql`
-  query searchUsers($keyword: String!) {
-    searchUsers(keyword: $keyword) {
-      ...UserFragment
-    }
-  }
-  ${USER_FRAGMENT}
-`;
+import SearchUser from "./SearchUser";
 
 const SearchContainer = styled.div`
   background-color: ${(props) => props.theme.bgColor};
@@ -65,24 +55,13 @@ const DeleteBtn = styled.div`
   cursor: pointer;
 `;
 
-const SearchResultContainer = styled.div`
-  height: 516px;
-  border-top: 1px solid #efefef;
-`;
-
 function Search({ onClose }) {
   const modalRef = useRef(null);
   useOutSideClick(modalRef, () => onClose());
-
   let [keyword, setKeyword] = useState("");
-  const [startQueryFn, { data, loading }] = useLazyQuery(SEARCH_USERS);
 
   const onChange = (e) => {
     setKeyword(e.target.value);
-
-    startQueryFn({
-      variables: { keyword: e.target.value },
-    });
   };
 
   const deleteKeyword = () => {
@@ -103,6 +82,11 @@ function Search({ onClose }) {
               onChange={onChange}
             />
             {keyword.length ? (
+              <DeleteBtn onClick={deleteKeyword}>𝙓</DeleteBtn>
+            ) : (
+              <></>
+            )}
+            {/* {keyword.length ? (
               loading ? (
                 <img src={Spinner} alt="로딩중" width="5px" />
               ) : (
@@ -110,21 +94,10 @@ function Search({ onClose }) {
               )
             ) : (
               <></>
-            )}
+            )} */}
           </SearchBar>
         </SearchBarContainer>
-        <SearchResultContainer>
-          {keyword.length
-            ? data?.searchUsers?.map((user) => (
-                <UserList
-                  key={user.id}
-                  avatar={user.avatar}
-                  username={user.username}
-                  firstName={user.firstName}
-                />
-              ))
-            : null}
-        </SearchResultContainer>
+        <SearchUser keyword={keyword} option={"follow"}></SearchUser>
       </SearchContainer>
     </ModalContainer>
   );
