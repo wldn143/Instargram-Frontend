@@ -18,7 +18,7 @@ const SearchResultContainer = styled.div`
   border-top: 1px solid #efefef;
 `;
 
-function SearchUser({ keyword, option }) {
+function SearchUser({ keyword, option, reciverFn }) {
   const [startQueryFn, { data, loading }] = useLazyQuery(SEARCH_USERS);
 
   useEffect(() => {
@@ -38,6 +38,7 @@ function SearchUser({ keyword, option }) {
                 username={user.username}
                 firstName={user.firstName}
                 option={option}
+                reciverFn={reciverFn}
               />
             ))
           : null}

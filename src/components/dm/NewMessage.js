@@ -1,10 +1,9 @@
 import { faRemove } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import ModalContainer from "../../shared/Modal";
 import useOutSideClick from "../../shared/useOutSideClick";
-import Search from "../search/Search";
 import SearchUser from "../search/SearchUser";
 
 const NewMessageContainer = styled.div`
@@ -39,9 +38,8 @@ const HeaderText = styled.div`
   height: 100%;
   color: ${(props) => props.theme.fontColor};
   display: flex;
-  text-align: center;
   justify-content: center;
-  align-items: center;
+  line-height: 42px;
   font-size: 16px;
   font-weight: 600;
 `;
@@ -49,15 +47,18 @@ const HeaderText = styled.div`
 const NextBtn = styled.div`
   width: 74px;
   height: 100%;
-  padding: 0 5px 0 5px;
-  cursor: pointer;
 `;
 
-const NextBtnText = styled.div`
+const NextBtnText = styled.button`
   text-align: center;
   line-height: 42px;
   color: ${(props) => props.theme.accent};
-  font-weight: 500;
+  font-weight: 600;
+  border: none;
+  background-color: inherit;
+  width: 100%;
+  cursor: ${(props) => (props.disabled ? "nond" : "pointer")};
+  opacity: ${(props) => (props.disabled ? "0.5" : "1")};
 `;
 
 const SearchContainer = styled.div`
@@ -89,14 +90,33 @@ const SearchBar = styled.input`
 `;
 
 const SearchResultContainer = styled.div``;
-function NewMessage({ onClose }) {
+function NewMessage({ onClose, opponentList, username }) {
   const modalRef = useRef(null);
   useOutSideClick(modalRef, () => onClose());
 
-  let [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [receiver, setReciever] = useState(null);
+  const [existing, setExisting] = useState(false);
 
   const onChange = (e) => {
     setKeyword(e.target.value);
+  };
+
+  const reciverFn = (e) => {
+    setReciever(e);
+  };
+
+  const findRoomFn = () => {
+    opponentList.map((room) => {
+      room.users.map((user) => {
+        if (user.username == receiver) {
+          //페이지 이동
+          window.location.href = `/direct/${username}/${room.id}`;
+        }
+      });
+    });
+    setExisting(false);
+    return;
   };
 
   return (
@@ -108,7 +128,9 @@ function NewMessage({ onClose }) {
           </CloseBtn>
           <HeaderText>새로운 메시지</HeaderText>
           <NextBtn>
-            <NextBtnText>다음</NextBtnText>
+            <NextBtnText onClick={findRoomFn} disabled={!receiver}>
+              다음
+            </NextBtnText>
           </NextBtn>
         </NewMessageHeader>
         <SearchContainer>
@@ -123,7 +145,11 @@ function NewMessage({ onClose }) {
           ></SearchBar>
         </SearchContainer>
         <SearchResultContainer>
-          <SearchUser keyword={keyword} option="checkBox"></SearchUser>
+          <SearchUser
+            keyword={keyword}
+            option="checkBox"
+            reciverFn={reciverFn}
+          ></SearchUser>
         </SearchResultContainer>
       </NewMessageContainer>
     </ModalContainer>

@@ -105,6 +105,7 @@ function Dm() {
 
   const [clickedRoom, setClickedRoom] = useState(0);
   const [roomList, setRoomList] = useState(null);
+  const [opponentList, setOpponentList] = useState([]);
   const [newMessage, setNewMessage] = useState(false);
 
   const roomClick = (id, opponent) => {
@@ -118,9 +119,14 @@ function Dm() {
   }, [clickedRoom]);
 
   useEffect(() => {
-    //console.log(roomList);
+    if (roomList) {
+      roomList.map((room) =>
+        room.users.map((user) => {
+          if (user.username != username) opponentList.push(room);
+        })
+      );
+    }
   }, [roomList]);
-
   return (
     <DmContainer>
       <RoomsContainer>
@@ -169,7 +175,13 @@ function Dm() {
           </InitialConatiner>
         )}
       </RoomContainer>
-      {newMessage ? <NewMessage onClose={() => setNewMessage(false)} /> : null}
+      {newMessage ? (
+        <NewMessage
+          onClose={() => setNewMessage(false)}
+          opponentList={opponentList}
+          username={username}
+        />
+      ) : null}
     </DmContainer>
   );
 }

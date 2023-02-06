@@ -21,9 +21,12 @@ const Circle = styled.div`
   font-size: 18px;
 `;
 
-function CheckBoxOption({ username }) {
-  const [selectedUser, setSelectedUser] = useState(null);
+function CheckBoxOption({ username, reciverFn }) {
+  const [selectedUser, setSelectedUser] = useState(false);
   const clickBox = () => {
+    if (!selectedUser) reciverFn(username);
+    else reciverFn(null);
+
     let prev = selectedUser;
     setSelectedUser(!prev);
   };

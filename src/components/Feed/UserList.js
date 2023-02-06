@@ -27,7 +27,7 @@ const UserText2 = styled.div`
   color: #a8a8a8;
 `;
 
-function UserList({ avatar, username, firstName, option }) {
+function UserList({ avatar, username, firstName, option, reciverFn }) {
   const [followOption, setFollowOption] = useState(false);
   const [checkBoxOption, setcheckBoxOption] = useState(false);
 
@@ -49,7 +49,9 @@ function UserList({ avatar, username, firstName, option }) {
         <UserText2>{firstName}</UserText2>
       </UserTextContainer>
       {followOption ? <FollowOption username={username} /> : null}
-      {checkBoxOption ? <CheckBoxOption username={username} /> : null}
+      {checkBoxOption ? (
+        <CheckBoxOption username={username} reciverFn={reciverFn} />
+      ) : null}
     </UserContainer>
   );
 }
